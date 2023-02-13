@@ -1,0 +1,126 @@
+use dbname
+show dbs
+db
+db.createCollection("name")
+db.colname.insertMany([{},{}])
+db.colname.find().pretty()
+db.salesman.find({},{_id:0,FirstName:1})
+db.salesman.updateMany({},{$unset:{"LastName":1}}) 		\\delete
+db.salesman.update({s_id:5002},{$set:{"profit":"40%"}})		\\insert new feild and upadte data for one record
+db.salesman.update({City:"Matara"},{$set:{"City":"Puttalam"}})
+db.salesman.find().limit(3).pretty() 				\\first 3
+db.salesman.find().skip(3).pretty()					\\last 3
+db.salesman.find({FirstName: {$regex: /^S/}},{_id:0,FirstName:1}).pretty()  \\ start with S and only fname
+
+Equal //  {Status: {$eg :"A"}}
+Greater than //	{<key>: {$gt:<value>}}
+Greater than equal //  {<key>: {$gte:<value>}}
+Values in an array // {<key>: {$in:[<value1>, <value2>,……<valueN>]}}
+Less than //  {<key>: {$lt:<value>}} 
+Less than equal //  {<key>: {$lte:<value>}}
+Not equal //  {<key>: {$ne:<value>}}
+
+$and //  db.collectionName.find({ $and: [ {key1:value1}, { key2:value2} ] })
+$or //  db.collectionName.find({ $or: [ {key1:value1}, { key2:value2} ] })
+$not //  db.collectionName.find({ $not: [ {key1:value1}, { key2:value2} ] })
+
+ -- Aggregate Functions -- 
+
+$match: It is used for filtering the documents can reduce the amount of documents that are given as input to the next stage.
+$project: It is used to select some specific fields from a collection.
+$group: It is used to group documents based on some value.
+$sort: It is used to sort the document that is rearranging them
+$skip: It is used to skip n number of documents and passes the remaining documents
+$limit: It is used to pass first n number of documents thus limiting them.
+$unwind: It is used to unwind documents that are using arrays i.e., it deconstructs an array field in the documents to return documents for each element.
+$out: It is used to write resulting documents to a new collection
+
+db.ex1.aggregate({$match:{section:"A"}})
+db.ex1.aggregate([{$match:{section:"A"}},{$group:{"_id":"$section",total:{$sum:"$c_fee"}}}]) // group by A and c_fee total
+db.ex1.aggregate([{$unwind:"$section"},{$count:"totald"}])  \\ total records
+db.ex1.aggregate([{$match:{section:"A"}},{$unwind:"$section"},{$count:"totald"}])  \\ total by section a
+db.ex1.aggregate([{$sort: {"c_fee": 1}}])  \\sort
+db.student9.aggregate([{$match:{sec:"B"}}, {$count:"total"}])
+db.student9.aggregate([{$group:{"_id":"$sec" , total:{$sum:1},maage:{$max:"$age"}}}])
+db.student9.aggregate([{$match:{age:{$gt:30}}}])
+db.student9.aggregate([{$match:{sec:"B"}},   {$group:{_id:"sec" , maxa:{$max:"$age"}}}])
+
+// Find the average age of all people in the collection:
+db.people.aggregate([
+  { $group: { _id: null, avgAge: { $avg: "$age" } } }
+])
+
+// Group the collection by city and find the total number of people in each city:
+db.people.aggregate([
+  { $group: { _id: "$city", totalPeople: { $sum: 1 } } },
+  { $sort: { totalPeople: -1 } }
+])
+
+// Find the top IO most popular tags in the collection:
+db.posts.aggregate([
+  { $unwind: "$tags" },
+  { $group: { _id: "$tags", count: { $sum: 1 } } },
+  { $sort: { count: -1 } },
+  { $limit: 10 }
+])
+
+// Find the average and maximum salary for each department in the company:
+db.employees.aggregate([
+  { $group: { _id: "$department", avgSalary: { $avg: "$salary" }, maxSalary: { $max: "$salary" } } }
+])
+
+// Date Range
+db.collection.aggregate([
+  { $match: { field: { $gt: lower_value, $lt: upper_value } } },
+  { $group: { _id: "$group_field", count: { $sum: 1 } } }
+])
+
+// $project
+db.books.aggregate([
+  { $project: { _id: 0, title: 1, author: 1, price: 1 } }
+])
+
+
+// import json file
+mongoimport --db books --collection bk --file books.json --jsonArray
+
+Create an Index // db collection_Name. createIndex ({field name: 1 or -1})
+Finding the indexes in a collection // db. Collection_Name. getIndexes ( )
+
+Drop indexes in a collection
+Dropping a specific index // db. Collection_Name. dropIndex ({ index_Name : 1})
+Dropping all the indexes // db. Collection_Name. dropIndex ( )
+
+
+
+// Node JS with Firebase
+
+// Read
+
+customerRef.get().then((querySanpshot) => {
+  querySanpshot.forEach((document) => {
+    console.log(document.data());
+  });
+});
+
+// create
+
+customerRef.doc("id").set({
+    Age: 50,
+    City: "tokyo",
+    Gender:"Female",
+    Name:"chinbin",
+    Salary:99999
+})
+
+//	Update
+
+customerRef.doc("7").update({
+        Age: 55
+    })
+
+// Delete
+
+customerRef.doc("7").delete({
+       
+    })
